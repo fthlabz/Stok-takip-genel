@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Genel Stok PRO v1.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+
+    <style>
+        /* Modern Kurumsal Tema (Indigo & Slate) */
+        body { background-color: #0f172a; color: white; font-family: 'Inter', sans-serif; touch-action: manipulation; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+        .hidden { display: none !important; }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .modal-enter { animation: fadeIn 0.2s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        
+        /* Buton Efektleri */
+        .btn-press:active { transform: scale(0.95); transition: 0.1s; }
+    </style>
+</head>
+<body>
+
+    <div id="login-screen" class="fixed inset-0 bg-slate-900 z-[9999] flex flex-col items-center justify-center p-6">
+        <div class="bg-slate-800 p-8 rounded-2xl shadow-2xl border border-slate-700 w-full max-w-sm text-center">
+            <div class="w-20 h-20 bg-indigo-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-indigo-500/50">
+                <i class="fa-solid fa-store text-4xl text-white"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-white mb-2">Mağaza Girişi</h2>
+            <p class="text-slate-400 text-sm mb-6">Yetkili Personel Kodu</p>
+            <input type="tel" id="login-pin" maxlength="4" placeholder="****" class="w-full bg-slate-950 text-white text-center text-3xl font-bold py-4 rounded-xl border-2 border-slate-600 focus:border-indigo-500 outline-none mb-4 tracking-[10px] transition-colors">
+            <button onclick="checkLogin()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 rounded-xl text-lg shadow-lg transition-colors btn-press">GİRİŞ YAP</button>
+        </div>
+        <p class="text-slate-600 text-xs mt-8">FTHLABZ General Stock v1.0</p>
+    </div>
+
+    <div id="app-content" class="flex flex-col h-full hidden">
+        
+        <header class="bg-slate-800 p-4 shadow-md border-b border-slate-700 flex justify-between items-center z-20 shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="bg-indigo-600 w-8 h-8 rounded flex items-center justify-center shadow">
+                    <i class="fa-solid fa-box-open text-white text-xs"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-gray-100 text-sm tracking-wide">STOK PRO</h1>
+                    <div class="text-[10px] text-slate-400">Genel Depo Yönetimi</div>
+                </div>
+            </div>
+            
+            <div class="flex gap-2">
+                <button onclick="showListPage()" class="bg-slate-700 hover:bg-slate-600 px-3 py-2 rounded-lg text-xs font-bold text-white border border-slate-600 flex items-center gap-2 btn-press">
+                    <i class="fa-solid fa-list"></i>
+                </button>
+                <button onclick="togglePriceMenu()" class="bg-indigo-600 hover:bg-indigo-500 px-3 py-2 rounded-lg text-xs font-bold text-white shadow-lg shadow-indigo-500/30 flex items-center gap-2 btn-press">
+                    <i class="fa-solid fa-tag"></i>
+                </button>
+            </div>
+        </header>
+
+        <div id="status-box" class="absolute top-20 left-1/2 transform -translate-x-1/2 bg-emerald-600 px-6 py-3 rounded-full text-sm font-bold text-white z-50 transition-all duration-300 opacity-0 translate-y-[-20px] shadow-xl flex items-center gap-2">
+            <i class="fa-solid fa-check-circle"></i> <span id="status-text">İşlem Başarılı</span>
+        </div>
+
+        <div id="confirm-modal" class="hidden fixed inset-0 bg-black/80 z-[100] flex items-center justify-end sm:justify-center p-0 sm:p-4 backdrop-blur-sm transition-opacity">
+            <div class="bg-slate-800 border-t sm:border border-slate-600 w-full max-w-sm rounded-t-3xl sm:rounded-2xl p-6 shadow-2xl modal-enter text-center">
+                <div class="w-16 h-1 bg-slate-600 rounded-full mx-auto mb-6 sm:hidden"></div>
+                <h3 class="text-xl font-bold text-white mb-1">Stok İşlemi</h3>
+                <p class="text-slate-400 text-sm mb-6">Miktarı Onaylıyor musunuz?</p>
+                
+                <div class="bg-slate-900/50 p-4 rounded-xl mb-6 border border-slate-700">
+                    <span id="confirm-amount" class="font-bold text-white text-4xl font-mono">0</span> 
+                    <span class="text-slate-500 text-sm ml-1">Adet</span>
+                    <div id="confirm-type" class="text-sm font-bold mt-1 tracking-widest uppercase">GİRİŞ</div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <button onclick="closeModal()" class="bg-slate-700 text-white py-4 rounded-xl font-bold btn-press">İPTAL</button>
+                    <button onclick="confirmTransaction()" class="bg-indigo-600 text-white py-4 rounded-xl font-bold shadow-lg shadow-indigo-500/30 btn-press">ONAYLA</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="price-menu" class="hidden absolute top-16 right-4 w-64 bg-slate-800 border border-slate-600 p-4 rounded-xl shadow-2xl z-50">
+            <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-2">
+                <h3 class="font-bold text-white text-sm">Toplu Fiyat Güncelle</h3>
+                <button onclick="togglePriceMenu()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="space-y-2">
+                <button onclick="applyBulkPrice(5)" class="w-full bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-600/50 py-2 rounded-lg font-bold text-xs btn-press">+%5 ZAM YAP</button>
+                <button onclick="applyBulkPrice(10)" class="w-full bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-600/50 py-2 rounded-lg font-bold text-xs btn-press">+%10 ZAM YAP</button>
+                <button onclick="applyBulkPrice(-5)" class="w-full bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 border border-rose-600/50 py-2 rounded-lg font-bold text-xs btn-press">-%5 İNDİRİM YAP</button>
+            </div>
+        </div>
+
+        <div id="scan-page" class="flex-1 flex flex-col items-center justify-center p-6 overflow-y-auto bg-slate-900">
+            
+            <div class="relative w-full max-w-sm aspect-square bg-black rounded-3xl overflow-hidden shadow-2xl border border-slate-700 mb-8 shrink-0 flex items-center justify-center group">
+                <div id="reader" class="w-full h-full object-cover"></div>
+                
+                <div id="camera-overlay" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-800 z-10">
+                    <div class="w-20 h-20 bg-slate-700 rounded-full flex items-center justify-center mb-4">
+                        <i class="fa-solid fa-barcode text-4xl text-slate-400"></i>
+                    </div>
+                    <p class="text-slate-300 text-sm font-bold">Kamera Hazır</p>
+                    <p class="text-slate-500 text-xs mt-1">Enerji Tasarrufu Modu</p>
+                </div>
+                <div class="absolute inset-0 border-[3px] border-indigo-500/50 m-6 rounded-2xl pointer-events-none z-20"></div>
+            </div>
+
+            <button id="toggle-cam-btn" onclick="toggleCamera()" class="w-full max-w-sm bg-indigo-600 hover:bg-indigo-500 text-white py-5 rounded-2xl font-bold text-lg shadow-xl shadow-indigo-500/20 btn-press flex items-center justify-center gap-3 transition-all">
+                <i class="fa-solid fa-camera"></i> <span>TARAMAYI BAŞLAT</span>
+            </button>
+
+            <button onclick="startNFC()" class="mt-4 w-full max-w-sm bg-slate-800 border border-slate-700 text-slate-300 py-4 rounded-2xl font-bold text-sm btn-press flex items-center justify-center gap-3">
+                <i class="fa-solid fa-wifi"></i> <span>NFC TARA</span>
+            </button>
+        </div>
+
+        <div id="product-page" class="hidden flex-1 flex flex-col bg-slate-900 p-4 overflow-y-auto pb-32">
+            <button onclick="goHome()" class="text-slate-400 mb-4 flex items-center gap-2 text-sm w-fit p-2 hover:text-white transition-colors">
+                <i class="fa-solid fa-arrow-left"></i> Vazgeç
+            </button>
+            
+            <div class="bg-slate-800 rounded-3xl p-6 shadow-xl border border-slate-700 relative mb-6">
+                <div class="flex justify-between items-start mb-3">
+                    <span id="p-id-badge" class="text-[10px] text-slate-400 font-mono bg-slate-950/50 px-2 py-1 rounded border border-slate-700">ID: ...</span>
+                    <span id="p-cat-badge" class="text-[10px] text-indigo-300 font-bold bg-indigo-900/30 px-2 py-1 rounded border border-indigo-500/30 uppercase tracking-wide">GENEL</span>
+                </div>
+                
+                <h1 id="p-name" class="text-2xl font-bold text-white mb-4 leading-tight">Ürün Adı</h1>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-slate-900/50 p-4 rounded-2xl border border-slate-700/50">
+                        <div class="text-[10px] text-slate-500 uppercase font-bold mb-1">Birim Fiyat</div>
+                        <div id="p-price" class="text-2xl font-bold text-emerald-400">0 ₺</div>
+                    </div>
+                    <div class="bg-slate-900/50 p-4 rounded-2xl border border-slate-700/50 text-right">
+                        <div class="text-[10px] text-slate-500 uppercase font-bold mb-1">Mevcut Stok</div>
+                        <div id="p-stock" class="text-4xl font-bold text-indigo-400">0</div>
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-4 border-t border-slate-700/50 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-info text-slate-500 text-xs"></i>
+                    <p id="p-note" class="text-xs text-slate-300 italic">Ek açıklama yok.</p>
+                </div>
+            </div>
+
+            <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-lg">
+                <label class="text-slate-400 text-xs uppercase font-bold ml-1 mb-2 block">Hızlı Stok Giriş / Çıkış</label>
+                
+                <div class="relative mb-4">
+                    <input type="number" id="manual-qty" placeholder="Miktar" class="w-full bg-slate-950 text-white text-center text-4xl font-bold py-5 rounded-2xl border-2 border-slate-700 focus:border-indigo-500 outline-none placeholder-slate-800 transition-colors" inputmode="numeric">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <button onclick="requestTransaction('out')" class="bg-rose-600 hover:bg-rose-500 text-white py-4 rounded-2xl font-bold text-lg shadow-lg shadow-rose-900/20 btn-press flex flex-col items-center justify-center gap-1">
+                        <i class="fa-solid fa-minus text-xl"></i>
+                        <span class="text-xs opacity-80">STOK DÜŞ</span>
+                    </button>
+                    <button onclick="requestTransaction('in')" class="bg-emerald-600 hover:bg-emerald-500 text-white py-4 rounded-2xl font-bold text-lg shadow-lg shadow-emerald-900/20 btn-press flex flex-col items-center justify-center gap-1">
+                        <i class="fa-solid fa-plus text-xl"></i>
+                        <span class="text-xs opacity-80">STOK EKLE</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="list-page" class="hidden flex-1 flex flex-col bg-slate-900 p-4 overflow-hidden">
+            <div class="flex items-center gap-3 mb-6">
+                <button onclick="goHome()" class="bg-slate-800 p-3 rounded-xl text-slate-400 border border-slate-700 btn-press"><i class="fa-solid fa-arrow-left"></i></button>
+                <div class="relative flex-1">
+                    <i class="fa-solid fa-search absolute left-4 top-3.5 text-slate-500"></i>
+                    <input type="text" oninput="renderList(this.value)" placeholder="Ürün Ara..." class="w-full bg-slate-950 text-white pl-10 pr-4 py-3 rounded-xl border border-slate-700 outline-none focus:border-indigo-500 transition-colors">
+                </div>
+            </div>
+            <div id="list-container" class="flex-1 overflow-y-auto space-y-3 pb-20 pr-1">
+                </div>
+        </div>
+    
+    </div>
+
+    <script>
+        // --- 🔐 AYARLAR ---
+        const APP_PIN = "1453"; // Şifre
+        const token_part_1 = "ghp_"; 
+        // 👇 TOKEN'I BURAYA YAPIŞTIR:
+        const token_part_2 = "TOKEN_BURAYA_YAPISTIR"; 
+        
+        // REPO ADINI DEĞİŞTİREBİLİRSİN VEYA AYNI KALABİLİR (Farklı dosya adı kullanırsın)
+        const CONFIG = { USER: "fthlabz", REPO: "aluminyum-stok", FILE: "genel_stok.json", TOKEN: token_part_1 + token_part_2 };
+        // DİKKAT: Dosya adını 'genel_stok.json' yaptım ki diğer programla karışmasın!
+
+        let db = { products: {} };
+        let currentId = null;
+        let scanner = null;
+        let isCameraRunning = false;
+        let fileSha = null;
+        let pendingAction = { type: null, amount: 0 };
+
+        // BAŞLANGIÇ
+        window.onload = async () => {
+            if(sessionStorage.getItem("auth_genel") === "true") unlockApp();
+            else document.getElementById('login-pin').focus();
+        };
+
+        function checkLogin() {
+            if(document.getElementById('login-pin').value === APP_PIN) unlockApp();
+            else { alert("Hatalı Şifre!"); document.getElementById('login-pin').value = ""; }
+        }
+
+        async function unlockApp() {
+            sessionStorage.setItem("auth_genel", "true");
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('app-content').classList.remove('hidden');
+            await syncFromCloud();
+        }
+
+        // --- 📸 KAMERA ---
+        function toggleCamera() {
+            const btn = document.getElementById('toggle-cam-btn');
+            const overlay = document.getElementById('camera-overlay');
+
+            if(isCameraRunning) {
+                if(scanner) scanner.stop().then(() => { scanner.clear(); });
+                isCameraRunning = false;
+                btn.innerHTML = '<i class="fa-solid fa-camera"></i> <span>TARAMAYI BAŞLAT</span>';
+                btn.classList.remove('bg-rose-600', 'hover:bg-rose-500');
+                btn.classList.add('bg-indigo-600', 'hover:bg-indigo-500');
+                overlay.classList.remove('hidden');
+            } else {
+                scanner = new Html5Qrcode("reader");
+                scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, findProduct);
+                isCameraRunning = true;
+                btn.innerHTML = '<i class="fa-solid fa-stop"></i> <span>KAMERAYI DURDUR</span>';
+                btn.classList.remove('bg-indigo-600', 'hover:bg-indigo-500');
+                btn.classList.add('bg-rose-600', 'hover:bg-rose-500');
+                overlay.classList.add('hidden');
+            }
+        }
+
+        function findProduct(code) {
+            if (code.includes("id=")) code = code.split("id=")[1];
+            if(isCameraRunning) toggleCamera(); // Bulunca kapat
+
+            currentId = code;
+            if (!db.products[code]) {
+                if(confirm("Bu ürün kayıtlı değil. Yeni kart açılsın mı?\nID: " + code)) createProduct(code);
+                return;
+            } 
+            showProductPage();
+        }
+
+        // --- BULUT İŞLEMLERİ ---
+        async function syncFromCloud() {
+            try {
+                const res = await fetch(`https://api.github.com/repos/${CONFIG.USER}/${CONFIG.REPO}/contents/${CONFIG.FILE}`, { headers: { 'Authorization': `token ${CONFIG.TOKEN}` }, cache: "no-store" });
+                if(res.status === 404) {
+                    // Dosya yoksa ilk kez oluştur
+                    db = { products: {} };
+                    await saveToCloud();
+                } else {
+                    const data = await res.json();
+                    fileSha = data.sha;
+                    db = JSON.parse(decodeURIComponent(escape(window.atob(data.content))));
+                }
+                showStatus("Veritabanı Hazır", false);
+            } catch (e) { showStatus("Bağlantı Hatası!", false); }
+        }
+
+        async function saveToCloud() {
+            showStatus("Kaydediliyor...", true);
+            const content = window.btoa(unescape(encodeURIComponent(JSON.stringify(db, null, 2))));
+            try {
+                await fetch(`https://api.github.com/repos/${CONFIG.USER}/${CONFIG.REPO}/contents/${CONFIG.FILE}`, { method: 'PUT', headers: { 'Authorization': `token ${CONFIG.TOKEN}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ message: "Update", content, sha: fileSha }) });
+                
+                // SHA güncellemek için tekrar çek
+                const res = await fetch(`https://api.github.com/repos/${CONFIG.USER}/${CONFIG.REPO}/contents/${CONFIG.FILE}`, { headers: { 'Authorization': `token ${CONFIG.TOKEN}` }, cache: "no-store" });
+                const data = await res.json();
+                fileSha = data.sha;
+                
+                showStatus("Kayıt Başarılı", false);
+            } catch(e) { showStatus("Kayıt Hatası!", false); }
+        }
+
+        // --- SAYFA YÖNETİMİ ---
+        function showProductPage() {
+            document.querySelectorAll('[id$="-page"]').forEach(el => el.classList.add('hidden'));
+            document.getElementById('product-page').classList.remove('hidden');
+            
+            const p = db.products[currentId];
+            
+            // ID Gösterimi (Link Temizleme)
+            let displayId = currentId;
+            if(displayId.length > 20) {
+                 if(displayId.includes("id=")) displayId = displayId.split("id=")[1];
+                 else if(displayId.includes("/")) displayId = displayId.split("/").pop();
+            }
+            document.getElementById('p-id-badge').innerText = "ID: " + displayId;
+            
+            document.getElementById('p-name').innerText = p.name;
+            document.getElementById('p-price').innerText = parseFloat(p.price).toFixed(2) + " ₺";
+            document.getElementById('p-stock').innerText = p.stock;
+            
+            // Varyant / Not Gösterimi
+            const note = p.note || p.variant || "Standart Ürün";
+            document.getElementById('p-note').innerText = note;
+            document.getElementById('p-cat-badge').innerText = p.category || "GENEL";
+        }
+
+        async function createProduct(code) {
+            let name = prompt("Ürün Adı:"); if(!name) return;
+            let price = prompt("Satış Fiyatı (TL):", "0");
+            // Boy yerine Açıklama/Varyant soruyoruz
+            let note = prompt("Açıklama / Özellik (Örn: L Beden, Kırmızı, SKT:2024):", "Standart");
+            
+            db.products[code] = { 
+                name: name, 
+                price: parseFloat(price)||0, 
+                stock: 0, 
+                note: note, // Yeni alan
+                category: "GENEL" // İleride kategori eklenebilir
+            };
+            await saveToCloud(); showProductPage();
+        }
+
+        async function editProduct(id) {
+            const p = db.products[id];
+            const n = prompt("Ürün Adı:", p.name); if (!n) return;
+            const pr = prompt("Fiyat:", p.price);
+            const no = prompt("Açıklama / Özellik:", p.note || "");
+            
+            p.name = n; 
+            p.price = parseFloat(pr)||0; 
+            p.note = no;
+            
+            await saveToCloud(); 
+            if(currentId === id) showProductPage();
+            else renderList(document.querySelector('input[placeholder="Ürün Ara..."]').value);
+        }
+
+        function requestTransaction(type) {
+            const val = parseInt(document.getElementById('manual-qty').value);
+            if (!val) return alert("Lütfen miktar giriniz.");
+            pendingAction = { type, amount: val };
+            
+            document.getElementById('confirm-amount').innerText = val;
+            const txt = document.getElementById('confirm-type');
+            const box = document.getElementById('confirm-type').parentElement;
+            
+            if(type==='in') { 
+                txt.innerText = "GİRİŞ YAPILIYOR"; 
+                txt.className = "text-sm font-bold mt-1 tracking-widest text-emerald-400";
+            } else { 
+                txt.innerText = "ÇIKIŞ YAPILIYOR"; 
+                txt.className = "text-sm font-bold mt-1 tracking-widest text-rose-400";
+            }
+            
+            document.getElementById('confirm-modal').classList.remove('hidden');
+        }
+
+        async function confirmTransaction() {
+            document.getElementById('confirm-modal').classList.add('hidden');
+            let amt = pendingAction.amount;
+            if(pendingAction.type === 'out') amt *= -1;
+            
+            db.products[currentId].stock += amt;
+            document.getElementById('manual-qty').value = "";
+            showProductPage(); 
+            await saveToCloud();
+        }
+
+        function closeModal() { document.getElementById('confirm-modal').classList.add('hidden'); }
+        function togglePriceMenu() { document.getElementById('price-menu').classList.toggle('hidden'); }
+        
+        async function applyBulkPrice(pct) {
+            if(!confirm(`Tüm ürünlerin fiyatı %${pct} değişecek. Emin misiniz?`)) return;
+            togglePriceMenu(); showStatus("Fiyatlar Güncelleniyor...");
+            for (let k in db.products) { 
+                let p = db.products[k]; 
+                p.price = parseFloat((p.price * (1 + pct/100)).toFixed(2)); 
+            }
+            await saveToCloud(); 
+            if(currentId) showProductPage();
+        }
+
+        function showStatus(msg, isError) {
+            const el = document.getElementById('status-box');
+            const txt = document.getElementById('status-text');
+            txt.innerText = msg;
+            
+            el.style.opacity = "1";
+            el.style.transform = "translate(-50%, 0)";
+            
+            if(isError) el.className = "absolute top-20 left-1/2 transform -translate-x-1/2 bg-rose-600 px-6 py-3 rounded-full text-sm font-bold text-white z-50 transition-all duration-300 shadow-xl flex items-center gap-2";
+            else el.className = "absolute top-20 left-1/2 transform -translate-x-1/2 bg-emerald-600 px-6 py-3 rounded-full text-sm font-bold text-white z-50 transition-all duration-300 shadow-xl flex items-center gap-2";
+
+            setTimeout(() => { 
+                el.style.opacity = "0"; 
+                el.style.transform = "translate(-50%, -20px)";
+            }, 2000);
+        }
+        
+        function goHome() { 
+            document.querySelectorAll('[id$="-page"]').forEach(el => el.classList.add('hidden'));
+            document.getElementById('scan-page').classList.remove('hidden');
+            currentId = null;
+            if(isCameraRunning) toggleCamera();
+            syncFromCloud();
+        }
+
+        function showListPage() {
+            if(isCameraRunning) toggleCamera();
+            document.querySelectorAll('[id$="-page"]').forEach(el => el.classList.add('hidden'));
+            document.getElementById('list-page').classList.remove('hidden');
+            renderList("");
+        }
+        
+        function renderList(filter) {
+            const c = document.getElementById('list-container'); c.innerHTML = "";
+            const keys = Object.keys(db.products).reverse(); // En son eklenen en üstte
+            
+            keys.forEach(k => {
+                const p = db.products[k];
+                if (p.name.toLowerCase().includes(filter.toLowerCase())) {
+                    const d = document.createElement('div');
+                    d.className = "bg-slate-800 p-4 rounded-2xl border border-slate-700 flex justify-between items-center group hover:border-indigo-500/50 transition-colors";
+                    
+                    const noteText = p.note ? `<span class='text-slate-500 text-xs ml-2 italic'>${p.note}</span>` : "";
+                    
+                    d.innerHTML = `
+                        <div onclick="findProduct('${k}')" class="flex-1 cursor-pointer">
+                            <div class='font-bold text-white text-lg'>${p.name}</div>
+                            <div class='text-xs text-slate-500 mt-1 flex items-center'>
+                                <span class="bg-slate-900 px-1.5 py-0.5 rounded text-indigo-400 font-mono">${k.slice(-4)}</span>
+                                ${noteText}
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div class='text-right'>
+                                <div class='text-indigo-400 font-bold text-xl'>${p.stock}</div>
+                                <div class='text-emerald-500 text-xs font-bold'>${p.price} ₺</div>
+                            </div>
+                            <button onclick="editProduct('${k}')" class="w-10 h-10 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-300 flex items-center justify-center transition-colors">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                        </div>`;
+                    c.appendChild(d);
+                }
+            });
+        }
+        
+        async function startNFC() {
+            if ('NDEFReader' in window) {
+                try {
+                    const ndef = new NDEFReader(); await ndef.scan(); showStatus("NFC Okutun...", false);
+                    ndef.onreading = event => { const decoder = new TextDecoder(); for (const record of event.message.records) findProduct(decoder.decode(record.data)); };
+                } catch (error) { alert("NFC Hatası: " + error); }
+            } else { alert("Cihazda NFC yok veya izin verilmedi."); }
+        }
+    </script>
+</body>
+</html>
