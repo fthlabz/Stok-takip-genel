@@ -1,4 +1,9 @@
 {
+  "66666": {
+    "name": "Deneme",
+    "price": 4566,
+    "stock": 50
+  },
   "products": {
     "234876": {
       "name": "Vestel 32 pfl 6450",
