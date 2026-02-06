@@ -1,1 +1,10 @@
-{ "products": {} }
+{
+  "products": {
+    "234876": {
+      "name": "Vestel 32 pfl 6450",
+      "price": 4750,
+      "stock": 0
+    }
+  },
+  "sales": []
+}
