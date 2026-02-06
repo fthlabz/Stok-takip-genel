@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>QR POS V9 (KAYIT EKRANI AKTİF)</title>
+    <title>QR PRO V10</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
@@ -13,10 +13,6 @@
         .hidden { display: none !important; }
         .btn-press:active { transform: scale(0.96); transition: 0.1s; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        
-        /* Kayıt Ekranı Animasyonu */
-        .modal-pop { animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
 </head>
 <body>
@@ -26,7 +22,7 @@
             <div class="w-20 h-20 bg-indigo-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-indigo-500/50">
                 <i class="fa-solid fa-qrcode text-3xl text-white"></i>
             </div>
-            <h2 class="text-2xl font-bold text-white mb-2">QR SATIŞ V9</h2>
+            <h2 class="text-2xl font-bold text-white mb-2">QR SİSTEMİ</h2>
             <input type="text" id="staff-name" placeholder="KULLANICI ADI" class="w-full bg-slate-950 text-white text-center text-xl font-bold py-4 rounded-xl border-2 border-slate-600 focus:border-indigo-500 outline-none mb-4 uppercase tracking-widest">
             <button onclick="login()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 rounded-xl text-lg shadow-lg btn-press">GİRİŞ YAP</button>
         </div>
@@ -63,10 +59,14 @@
                     <i class="fa-solid fa-camera text-2xl"></i> <span>QR TARA</span>
                 </button>
                 
-                <div id="manual-input-area" class="flex-[0.4] flex items-center bg-slate-950 border border-slate-600 rounded-xl overflow-hidden focus-within:border-indigo-500 transition-all">
-                    <input type="text" id="barcode-input" placeholder="Manuel ID" class="w-full bg-transparent px-3 py-4 text-white text-center text-sm outline-none font-mono" onkeypress="handleEnter(event)">
-                    <button onclick="manualProcess()" class="bg-slate-700 px-3 py-4 text-white hover:bg-slate-600 border-l border-slate-600"><i class="fa-solid fa-plus"></i></button>
-                </div>
+                <button onclick="toggleManualInput()" class="bg-slate-700 text-white w-16 h-16 rounded-xl btn-press flex items-center justify-center border border-slate-600">
+                    <i class="fa-solid fa-keyboard text-xl"></i>
+                </button>
+            </div>
+
+            <div id="manual-input-box" class="hidden mb-4 flex gap-2">
+                <input type="text" id="manual-qr-input" placeholder="QR Kodunu Yaz..." class="flex-1 bg-slate-950 border border-slate-600 rounded-xl px-4 py-3 text-white outline-none font-mono">
+                <button onclick="manualProcess()" class="bg-emerald-600 text-white px-4 rounded-xl font-bold">EKLE</button>
             </div>
 
             <div id="camera-box" class="hidden mb-4 rounded-xl overflow-hidden h-64 bg-black relative border-2 border-indigo-500">
@@ -95,37 +95,28 @@
         </div>
 
         <div id="new-product-modal" class="fixed inset-0 bg-black/95 z-[100] hidden flex flex-col justify-center p-6 backdrop-blur-sm">
-            <div class="bg-slate-800 p-6 rounded-3xl border border-slate-600 shadow-2xl relative modal-pop">
+            <div class="bg-slate-800 p-6 rounded-3xl border border-slate-600 shadow-2xl relative">
                 <button onclick="closeNewProductModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-2xl"></i></button>
                 
                 <div class="text-center mb-6">
                     <div class="w-16 h-16 bg-amber-600/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <i class="fa-solid fa-box-open text-3xl text-amber-500"></i>
+                        <i class="fa-solid fa-qrcode text-3xl text-amber-500"></i>
                     </div>
-                    <h2 class="text-2xl font-bold text-white">YENİ ÜRÜN BULUNDU</h2>
-                    <p class="text-slate-400 text-xs mt-1">Bu QR kodu sisteme ilk kez tanıtıyorsunuz.</p>
+                    <h2 class="text-2xl font-bold text-white">YENİ QR KOD</h2>
+                    <p class="text-slate-400 text-xs mt-1">Bu ürün sistemde yok, şimdi tanımla.</p>
                 </div>
 
                 <div class="space-y-4">
                     <div class="bg-slate-900 p-3 rounded-xl border border-slate-700">
-                        <label class="text-[10px] text-slate-500 uppercase font-bold block">QR KOD (ID)</label>
+                        <label class="text-[10px] text-slate-500 uppercase font-bold block">QR ID</label>
                         <input type="text" id="modal-code" class="w-full bg-transparent text-emerald-400 font-mono text-sm break-all outline-none" readonly>
                     </div>
 
-                    <div>
-                        <label class="text-xs text-slate-400 uppercase font-bold ml-1">ÜRÜN ADI</label>
-                        <input type="text" id="modal-name" class="w-full bg-slate-950 text-white p-4 rounded-xl border border-slate-600 focus:border-indigo-500 outline-none font-bold text-lg placeholder-slate-700" placeholder="Örn: Kazak">
-                    </div>
+                    <input type="text" id="modal-name" class="w-full bg-slate-950 text-white p-4 rounded-xl border border-slate-600 focus:border-indigo-500 outline-none font-bold text-lg placeholder-slate-700" placeholder="Ürün Adı Gir...">
 
                     <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="text-xs text-slate-400 uppercase font-bold ml-1">FİYAT (₺)</label>
-                            <input type="number" id="modal-price" class="w-full bg-slate-950 text-emerald-400 p-4 rounded-xl border border-slate-600 focus:border-emerald-500 outline-none font-bold text-xl placeholder-slate-700" placeholder="0">
-                        </div>
-                        <div>
-                            <label class="text-xs text-slate-400 uppercase font-bold ml-1">STOK</label>
-                            <input type="number" id="modal-stock" class="w-full bg-slate-950 text-orange-400 p-4 rounded-xl border border-slate-600 focus:border-orange-500 outline-none font-bold text-xl placeholder-slate-700" placeholder="0">
-                        </div>
+                        <input type="number" id="modal-price" class="w-full bg-slate-950 text-emerald-400 p-4 rounded-xl border border-slate-600 focus:border-emerald-500 outline-none font-bold text-xl placeholder-slate-700" placeholder="Fiyat">
+                        <input type="number" id="modal-stock" class="w-full bg-slate-950 text-orange-400 p-4 rounded-xl border border-slate-600 focus:border-orange-500 outline-none font-bold text-xl placeholder-slate-700" placeholder="Stok">
                     </div>
                 </div>
 
@@ -162,7 +153,7 @@
     </div>
 
     <script>
-        // --- ⚙️ TOKEN AYARLARI (BURAYI GÜNCELLE!) ---
+        // --- ⚙️ TOKEN AYARLARI ---
         const token_part_1 = "ghp_"; 
         const token_part_2 = "cXub3CuFhcdHtGbKgyQkvCKj57AUos0kNIIW"; 
 
@@ -201,22 +192,32 @@
                     shaStok = data.sha;
                     productDB = JSON.parse(decodeURIComponent(escape(window.atob(data.content))));
                 } else {
-                    alert("Veri çekilemedi. Token'ı kontrol et.");
+                    alert("Veri çekilemedi. Bağlantı hatası.");
                 }
             } catch(e) { console.error(e); }
         }
 
+        // --- SADECE QR ODAKLI KAMERA ---
         function openCameraOneShot() {
             const box = document.getElementById('camera-box');
+            document.getElementById('manual-input-box').classList.add('hidden'); // Manueli kapat
             box.classList.remove('hidden');
+            
             if(scanner) { scanner.clear(); }
             scanner = new Html5Qrcode("reader");
-            scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, 
+            
+            // SADECE QR OKUMASI İÇİN FORMAT AYARI
+            const config = { 
+                fps: 10, 
+                qrbox: 250,
+                formatsToSupport: [ Html5QrcodeSupportedFormats.QR_CODE ] 
+            };
+
+            scanner.start({ facingMode: "environment" }, config, 
                 (decodedText) => {
                     scanner.stop().then(() => { scanner.clear(); box.classList.add('hidden'); });
-                    // QR Kod temizliği (ID= kısmını ayıkla)
-                    let cleanCode = decodedText; // Direkt QR'ı kullanıyoruz
-                    processBarcode(cleanCode);
+                    // Okunan QR kodunu işle
+                    processQR(decodedText);
                 },
                 (err) => {}
             ).catch(err => { alert("Kamera hatası: " + err); box.classList.add('hidden'); });
@@ -227,22 +228,32 @@
             document.getElementById('camera-box').classList.add('hidden');
         }
 
-        function handleEnter(e) { if(e.key === 'Enter') manualProcess(); }
-
-        function manualProcess() {
-            const code = document.getElementById('barcode-input').value;
-            if(!code) return;
-            processBarcode(code);
-            document.getElementById('barcode-input').value = "";
+        // --- MANUEL GİRİŞ (YEDEK) ---
+        function toggleManualInput() {
+            const box = document.getElementById('manual-input-box');
+            if(box.classList.contains('hidden')) {
+                box.classList.remove('hidden');
+                document.getElementById('camera-box').classList.add('hidden');
+                document.getElementById('manual-qr-input').focus();
+            } else {
+                box.classList.add('hidden');
+            }
         }
 
-        // --- ANA BEYİN: VARSA SAT, YOKSA KAYDET ---
-        function processBarcode(code) {
+        function manualProcess() {
+            const code = document.getElementById('manual-qr-input').value;
+            if(!code) return;
+            processQR(code);
+            document.getElementById('manual-qr-input').value = "";
+        }
+
+        // --- QR İŞLEME MERKEZİ ---
+        function processQR(code) {
             if(productDB[code]) {
-                // ÜRÜN VAR -> DİREKT SEPETE
+                // Ürün varsa direkt sat
                 addToCart(code);
             } else {
-                // ÜRÜN YOK -> O EKRANI AÇ (KAYBETMİŞTİM GERİ GETİRDİM)
+                // Ürün yoksa kayıt ekranını aç
                 openNewProductModal(code);
             }
         }
@@ -295,7 +306,7 @@
             }
         }
 
-        // --- KAYIT EKRANI FONKSİYONLARI ---
+        // --- YENİ KAYIT ---
         function openNewProductModal(code) {
             document.getElementById('new-product-modal').classList.remove('hidden');
             document.getElementById('modal-code').value = code;
@@ -311,22 +322,15 @@
             const price = parseFloat(document.getElementById('modal-price').value);
             const stock = parseInt(document.getElementById('modal-stock').value);
             
-            if(!name || isNaN(price)) return alert("Bilgileri eksiksiz girin!");
+            if(!name || isNaN(price)) return alert("Bilgileri girin!");
             
-            // 1. Veritabanına kaydet
             productDB[code] = { name, price, stock: stock || 0 };
-            
-            // 2. Pencereyi kapat
             closeNewProductModal();
-            
-            // 3. GitHub'a gönder (Arka planda)
-            saveToGithub(CONFIG.FILE_STOK, productDB, shaStok, "Yeni: " + name).then(() => loadStockData());
-            
-            // 4. VE EN ÖNEMLİSİ: DİREKT SEPETE AT (Tekrar okutmaya gerek yok!)
+            saveToGithub(CONFIG.FILE_STOK, productDB, shaStok, "Yeni QR: " + name).then(() => loadStockData());
             addToCart(code);
         }
 
-        // --- DİĞER FONKSİYONLAR ---
+        // --- DİĞERLERİ ---
         function copyMySales() {
             if(cart.length === 0) return alert("Liste boş!");
             let text = `📅 SATIŞ LİSTESİ\n👤 ${currentUser}\n------------------\n`;
