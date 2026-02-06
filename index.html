@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GÜNLÜK POS V7</title>
+    <title>QR POS V9 (KAYIT EKRANI AKTİF)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
@@ -13,6 +13,10 @@
         .hidden { display: none !important; }
         .btn-press:active { transform: scale(0.96); transition: 0.1s; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
+        
+        /* Kayıt Ekranı Animasyonu */
+        .modal-pop { animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
 </head>
 <body>
@@ -20,11 +24,11 @@
     <div id="login-screen" class="fixed inset-0 bg-slate-900 z-[9999] flex flex-col items-center justify-center p-6">
         <div class="bg-slate-800 p-8 rounded-2xl border border-slate-700 w-full max-w-sm text-center shadow-2xl">
             <div class="w-20 h-20 bg-indigo-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-indigo-500/50">
-                <i class="fa-solid fa-store text-3xl text-white"></i>
+                <i class="fa-solid fa-qrcode text-3xl text-white"></i>
             </div>
-            <h2 class="text-2xl font-bold text-white mb-2">GÜNLÜK POS</h2>
-            <input type="text" id="staff-name" placeholder="RUMUZ GİRİNİZ" class="w-full bg-slate-950 text-white text-center text-xl font-bold py-4 rounded-xl border-2 border-slate-600 focus:border-indigo-500 outline-none mb-4 uppercase tracking-widest">
-            <button onclick="login()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 rounded-xl text-lg shadow-lg btn-press">KASAYI AÇ</button>
+            <h2 class="text-2xl font-bold text-white mb-2">QR SATIŞ V9</h2>
+            <input type="text" id="staff-name" placeholder="KULLANICI ADI" class="w-full bg-slate-950 text-white text-center text-xl font-bold py-4 rounded-xl border-2 border-slate-600 focus:border-indigo-500 outline-none mb-4 uppercase tracking-widest">
+            <button onclick="login()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 rounded-xl text-lg shadow-lg btn-press">GİRİŞ YAP</button>
         </div>
     </div>
 
@@ -46,24 +50,36 @@
 
         <div class="flex-1 overflow-y-auto bg-slate-900 p-4" id="sales-area">
             <div id="empty-state" class="flex flex-col items-center justify-center h-full text-slate-600 opacity-50">
-                <i class="fa-solid fa-barcode text-6xl mb-4"></i>
-                <p>Ürün okutun...</p>
+                <i class="fa-solid fa-qrcode text-6xl mb-4"></i>
+                <p>QR Okutun...</p>
             </div>
             <div id="cart-list" class="space-y-2 hidden"></div>
         </div>
 
         <div class="bg-slate-800 p-4 rounded-t-3xl border-t border-slate-700 shadow-2xl z-30 shrink-0">
             
-            <div class="flex gap-2 mb-4">
-                <button onclick="openCameraOneShot()" id="cam-btn" class="bg-slate-700 text-white w-16 rounded-xl btn-press text-2xl shadow-lg border border-slate-600"><i class="fa-solid fa-camera"></i></button>
-                <input type="text" id="barcode-input" placeholder="Barkod..." class="flex-1 bg-slate-950 border border-slate-600 rounded-xl px-4 py-3 text-white outline-none focus:border-indigo-500 font-mono" onkeypress="handleEnter(event)">
-                <button onclick="manualProcess()" class="bg-indigo-600 text-white px-6 rounded-xl font-bold btn-press">EKLE</button>
+            <div class="flex gap-3 mb-4 items-center">
+                <button onclick="openCameraOneShot()" id="cam-btn" class="flex-1 bg-indigo-600 text-white py-4 rounded-xl btn-press text-lg font-bold shadow-lg flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-camera text-2xl"></i> <span>QR TARA</span>
+                </button>
+                
+                <div id="manual-input-area" class="flex-[0.4] flex items-center bg-slate-950 border border-slate-600 rounded-xl overflow-hidden focus-within:border-indigo-500 transition-all">
+                    <input type="text" id="barcode-input" placeholder="Manuel ID" class="w-full bg-transparent px-3 py-4 text-white text-center text-sm outline-none font-mono" onkeypress="handleEnter(event)">
+                    <button onclick="manualProcess()" class="bg-slate-700 px-3 py-4 text-white hover:bg-slate-600 border-l border-slate-600"><i class="fa-solid fa-plus"></i></button>
+                </div>
             </div>
 
             <div id="camera-box" class="hidden mb-4 rounded-xl overflow-hidden h-64 bg-black relative border-2 border-indigo-500">
                 <div id="reader" class="w-full h-full object-cover"></div>
-                <div class="absolute inset-0 border-2 border-white/30 m-8 rounded-lg pointer-events-none"></div>
-                <button onclick="closeCamera()" class="absolute top-2 right-2 bg-red-600 text-white w-8 h-8 rounded-full z-10 font-bold">X</button>
+                <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <div class="w-48 h-48 border-2 border-emerald-500/50 rounded-lg relative">
+                        <div class="absolute top-0 left-0 w-4 h-4 border-t-4 border-l-4 border-emerald-500"></div>
+                        <div class="absolute top-0 right-0 w-4 h-4 border-t-4 border-r-4 border-emerald-500"></div>
+                        <div class="absolute bottom-0 left-0 w-4 h-4 border-b-4 border-l-4 border-emerald-500"></div>
+                        <div class="absolute bottom-0 right-0 w-4 h-4 border-b-4 border-r-4 border-emerald-500"></div>
+                    </div>
+                </div>
+                <button onclick="closeCamera()" class="absolute top-2 right-2 bg-red-600 text-white w-8 h-8 rounded-full z-10 font-bold shadow-lg">X</button>
             </div>
 
             <div class="flex flex-col gap-2 border-t border-slate-700 pt-3">
@@ -71,31 +87,51 @@
                      <div class="text-xs text-slate-400">GÜNLÜK TOPLAM</div>
                      <div id="cart-total" class="text-3xl font-bold text-emerald-400">0.00 ₺</div>
                 </div>
-                
                 <div class="flex gap-2">
-                    <button onclick="copyMySales()" class="bg-slate-600 text-white px-4 py-4 rounded-2xl font-bold flex-1 btn-press text-sm">
-                        <i class="fa-solid fa-copy mr-1"></i> KOPYALA
-                    </button>
-                    <button onclick="completeSale()" id="finish-btn" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-4 rounded-2xl font-bold shadow-lg disabled:opacity-50 disabled:grayscale flex-[2] btn-press" disabled>
-                        SATIŞI TAMAMLA
-                    </button>
+                    <button onclick="copyMySales()" class="bg-slate-600 text-white px-4 py-4 rounded-2xl font-bold flex-1 btn-press text-sm"><i class="fa-solid fa-copy mr-1"></i> LİSTEM</button>
+                    <button onclick="completeSale()" id="finish-btn" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-4 rounded-2xl font-bold shadow-lg disabled:opacity-50 disabled:grayscale flex-[2] btn-press" disabled>SATIŞI TAMAMLA</button>
                 </div>
             </div>
         </div>
 
-        <div id="new-product-modal" class="fixed inset-0 bg-black/90 z-[100] hidden flex flex-col justify-center p-6 backdrop-blur-sm">
-            <div class="bg-slate-800 p-6 rounded-3xl border border-slate-600 shadow-2xl relative">
+        <div id="new-product-modal" class="fixed inset-0 bg-black/95 z-[100] hidden flex flex-col justify-center p-6 backdrop-blur-sm">
+            <div class="bg-slate-800 p-6 rounded-3xl border border-slate-600 shadow-2xl relative modal-pop">
                 <button onclick="closeNewProductModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-2xl"></i></button>
-                <h2 class="text-xl font-bold text-white mb-2 text-center">Yeni Ürün Tanımla</h2>
+                
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-amber-600/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fa-solid fa-box-open text-3xl text-amber-500"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white">YENİ ÜRÜN BULUNDU</h2>
+                    <p class="text-slate-400 text-xs mt-1">Bu QR kodu sisteme ilk kez tanıtıyorsunuz.</p>
+                </div>
+
                 <div class="space-y-4">
-                    <input type="text" id="modal-code" class="w-full bg-slate-900 text-slate-400 p-3 rounded-xl border border-slate-700 font-mono text-sm" readonly>
-                    <input type="text" id="modal-name" class="w-full bg-slate-950 text-white p-3 rounded-xl border border-slate-600 focus:border-indigo-500 outline-none font-bold" placeholder="Ürün Adı">
+                    <div class="bg-slate-900 p-3 rounded-xl border border-slate-700">
+                        <label class="text-[10px] text-slate-500 uppercase font-bold block">QR KOD (ID)</label>
+                        <input type="text" id="modal-code" class="w-full bg-transparent text-emerald-400 font-mono text-sm break-all outline-none" readonly>
+                    </div>
+
+                    <div>
+                        <label class="text-xs text-slate-400 uppercase font-bold ml-1">ÜRÜN ADI</label>
+                        <input type="text" id="modal-name" class="w-full bg-slate-950 text-white p-4 rounded-xl border border-slate-600 focus:border-indigo-500 outline-none font-bold text-lg placeholder-slate-700" placeholder="Örn: Kazak">
+                    </div>
+
                     <div class="grid grid-cols-2 gap-4">
-                        <input type="number" id="modal-price" class="w-full bg-slate-950 text-emerald-400 p-3 rounded-xl border border-slate-600 focus:border-emerald-500 outline-none font-bold text-lg" placeholder="Fiyat">
-                        <input type="number" id="modal-stock" class="w-full bg-slate-950 text-orange-400 p-3 rounded-xl border border-slate-600 focus:border-orange-500 outline-none font-bold text-lg" placeholder="Stok">
+                        <div>
+                            <label class="text-xs text-slate-400 uppercase font-bold ml-1">FİYAT (₺)</label>
+                            <input type="number" id="modal-price" class="w-full bg-slate-950 text-emerald-400 p-4 rounded-xl border border-slate-600 focus:border-emerald-500 outline-none font-bold text-xl placeholder-slate-700" placeholder="0">
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-400 uppercase font-bold ml-1">STOK</label>
+                            <input type="number" id="modal-stock" class="w-full bg-slate-950 text-orange-400 p-4 rounded-xl border border-slate-600 focus:border-orange-500 outline-none font-bold text-xl placeholder-slate-700" placeholder="0">
+                        </div>
                     </div>
                 </div>
-                <button onclick="saveNewProduct()" class="w-full mt-6 bg-emerald-600 hover:bg-emerald-500 text-white py-4 rounded-xl font-bold shadow-lg btn-press">KAYDET</button>
+
+                <button onclick="saveNewProduct()" class="w-full mt-8 bg-emerald-600 hover:bg-emerald-500 text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-emerald-600/20 btn-press">
+                    KAYDET VE EKLE
+                </button>
             </div>
         </div>
 
@@ -115,21 +151,20 @@
             <div class="p-4 bg-slate-800 border-t border-slate-700 space-y-2">
                  <div class="flex gap-2">
                     <button onclick="printReport()" class="flex-1 bg-slate-700 py-3 rounded-xl font-bold text-white text-sm">YAZDIR</button>
-                    <button onclick="copyReport()" class="flex-1 bg-slate-700 py-3 rounded-xl font-bold text-white text-sm">TÜMÜNÜ KOPYALA</button>
+                    <button onclick="copyReport()" class="flex-1 bg-slate-700 py-3 rounded-xl font-bold text-white text-sm">KOPYALA</button>
                 </div>
                 <button onclick="resetDailyData()" class="w-full bg-rose-700 hover:bg-rose-600 py-4 rounded-xl font-bold text-white shadow-lg btn-press flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-trash-can"></i> GÜN SONU (VERİLERİ SİL)
+                    <i class="fa-solid fa-trash-can"></i> GÜN SONU (SIFIRLA)
                 </button>
-                <p class="text-[10px] text-slate-500 text-center">Basınca tüm geçmiş silinir, yarına sıfır başlar.</p>
             </div>
         </div>
 
     </div>
 
     <script>
-        // --- ⚙️ AYARLAR ---
+        // --- ⚙️ TOKEN AYARLARI (BURAYI GÜNCELLE!) ---
         const token_part_1 = "ghp_"; 
-        const token_part_2 = "cXub3CuFhcdHtGbKgyQkvCKj57AUos0kNIIW"; // <-- GÜNCEL TOKEN
+        const token_part_2 = "cXub3CuFhcdHtGbKgyQkvCKj57AUos0kNIIW"; 
 
         const CONFIG = {
             USER: "fthlabz", 
@@ -139,17 +174,15 @@
             TOKEN: token_part_1 + token_part_2
         };
 
-        // --- DEĞİŞKENLER ---
         let productDB = {}; 
         let cart = [];
         let currentUser = "";
         let scanner = null;
         let shaStok = null;
 
-        // --- GİRİŞ ---
         function login() {
             const val = document.getElementById('staff-name').value.trim().toUpperCase();
-            if(!val) return alert("Rumuz giriniz!");
+            if(!val) return alert("Kullanıcı adı giriniz!");
             currentUser = val;
             document.getElementById('active-staff-display').innerText = "Kasiyer: " + currentUser;
             document.getElementById('login-screen').classList.add('hidden');
@@ -157,52 +190,36 @@
             loadStockData();
         }
 
-        // --- VERİ ÇEKME ---
         async function loadStockData() {
             try {
                 const url = `https://api.github.com/repos/${CONFIG.USER}/${CONFIG.REPO}/contents/${CONFIG.FILE_STOK}`;
                 const res = await fetch(url, { headers: { 'Authorization': `token ${CONFIG.TOKEN}` }, cache: "no-store" });
                 if(res.status === 404) {
                     productDB = {}; saveToGithub(CONFIG.FILE_STOK, {}, null, "Init");
-                } else {
+                } else if(res.ok) {
                     const data = await res.json();
                     shaStok = data.sha;
                     productDB = JSON.parse(decodeURIComponent(escape(window.atob(data.content))));
+                } else {
+                    alert("Veri çekilemedi. Token'ı kontrol et.");
                 }
             } catch(e) { console.error(e); }
         }
 
-        // --- KAMERA (TEK SEFERLİK OKUMA - BATARYA DOSTU) ---
         function openCameraOneShot() {
             const box = document.getElementById('camera-box');
             box.classList.remove('hidden');
-            
-            // Eğer zaten açıksa kapatıp yeniden başlatma
             if(scanner) { scanner.clear(); }
-
             scanner = new Html5Qrcode("reader");
-            scanner.start(
-                { facingMode: "environment" }, 
-                { fps: 10, qrbox: 250 }, 
+            scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, 
                 (decodedText) => {
-                    // --- BARKOD OKUNDU ---
-                    // 1. Hemen Kamerayı Durdur (Batarya için)
-                    scanner.stop().then(() => {
-                        scanner.clear();
-                        box.classList.add('hidden'); // Ekranı gizle
-                    });
-
-                    // 2. İşlemi Yap
-                    let cleanCode = decodedText.includes("id=") ? decodedText.split("id=")[1] : decodedText;
+                    scanner.stop().then(() => { scanner.clear(); box.classList.add('hidden'); });
+                    // QR Kod temizliği (ID= kısmını ayıkla)
+                    let cleanCode = decodedText; // Direkt QR'ı kullanıyoruz
                     processBarcode(cleanCode);
                 },
-                (errorMessage) => { 
-                    // Okuma hatalarını yut (Log kirliliği olmasın)
-                }
-            ).catch(err => {
-                alert("Kamera açılmadı: " + err);
-                box.classList.add('hidden');
-            });
+                (err) => {}
+            ).catch(err => { alert("Kamera hatası: " + err); box.classList.add('hidden'); });
         }
 
         function closeCamera() {
@@ -210,29 +227,30 @@
             document.getElementById('camera-box').classList.add('hidden');
         }
 
-        // --- ANA İŞLEM ---
         function handleEnter(e) { if(e.key === 'Enter') manualProcess(); }
 
         function manualProcess() {
             const code = document.getElementById('barcode-input').value;
             if(!code) return;
-            let cleanCode = code.includes("id=") ? code.split("id=")[1] : code;
-            processBarcode(cleanCode);
+            processBarcode(code);
             document.getElementById('barcode-input').value = "";
-            document.getElementById('barcode-input').focus();
         }
 
+        // --- ANA BEYİN: VARSA SAT, YOKSA KAYDET ---
         function processBarcode(code) {
-            if(productDB[code]) addToCart(code);
-            else openNewProductModal(code);
+            if(productDB[code]) {
+                // ÜRÜN VAR -> DİREKT SEPETE
+                addToCart(code);
+            } else {
+                // ÜRÜN YOK -> O EKRANI AÇ (KAYBETMİŞTİM GERİ GETİRDİM)
+                openNewProductModal(code);
+            }
         }
 
-        // --- SEPET ---
         function addToCart(code) {
             const p = productDB[code];
-            // Stok uyarısı sadece bilgi amaçlı, satışı engellemesin
-            if(p.stock <= 0) showStatus("⚠️ Stokta Yok!", true);
-
+            if(p.stock <= 0) showStatus("⚠️ Stok Bitti!", true);
+            
             cart.push({
                 code: code,
                 name: p.name,
@@ -265,11 +283,11 @@
                     <div class="bg-slate-800 p-3 rounded-xl border border-slate-700 flex justify-between items-center mb-2">
                         <div>
                             <div class="text-[10px] text-slate-400 font-bold">${item.date} - ${item.staff}</div>
-                            <div class="font-bold text-white">${item.name}</div>
+                            <div class="font-bold text-white text-sm">${item.name}</div>
                         </div>
                         <div class="text-right">
                             <div class="text-emerald-400 font-bold">${parseFloat(item.price).toFixed(2)}</div>
-                            <button onclick="cart.splice(${cart.length - 1 - i},1); renderCart()" class="text-rose-500 text-xs mt-1">SİL</button>
+                            <button onclick="cart.splice(${cart.length - 1 - i},1); renderCart()" class="text-rose-500 text-xs mt-1 p-1">SİL</button>
                         </div>
                     </div>`;
                 });
@@ -277,26 +295,7 @@
             }
         }
 
-        // --- SATICININ KENDİ LİSTESİNİ KOPYALAMASI ---
-        function copyMySales() {
-            if(cart.length === 0) return alert("Liste boş!");
-            
-            let text = `📅 SATIŞ LİSTESİ (${new Date().toLocaleDateString()})\n`;
-            text += `👤 ${currentUser}\n------------------\n`;
-            let total = 0;
-            
-            cart.forEach(item => {
-                text += `${item.date} | ${item.name} | ${item.price} ₺\n`;
-                total += parseFloat(item.price);
-            });
-            text += `------------------\nTOPLAM: ${total.toFixed(2)} ₺`;
-
-            navigator.clipboard.writeText(text).then(() => {
-                alert("Liste kopyalandı! Telefonuna yapıştırabilirsin.");
-            });
-        }
-
-        // --- YENİ ÜRÜN ---
+        // --- KAYIT EKRANI FONKSİYONLARI ---
         function openNewProductModal(code) {
             document.getElementById('new-product-modal').classList.remove('hidden');
             document.getElementById('modal-code').value = code;
@@ -311,19 +310,35 @@
             const name = document.getElementById('modal-name').value;
             const price = parseFloat(document.getElementById('modal-price').value);
             const stock = parseInt(document.getElementById('modal-stock').value);
-            if(!name || isNaN(price)) return alert("Eksik bilgi!");
             
+            if(!name || isNaN(price)) return alert("Bilgileri eksiksiz girin!");
+            
+            // 1. Veritabanına kaydet
             productDB[code] = { name, price, stock: stock || 0 };
+            
+            // 2. Pencereyi kapat
             closeNewProductModal();
+            
+            // 3. GitHub'a gönder (Arka planda)
             saveToGithub(CONFIG.FILE_STOK, productDB, shaStok, "Yeni: " + name).then(() => loadStockData());
+            
+            // 4. VE EN ÖNEMLİSİ: DİREKT SEPETE AT (Tekrar okutmaya gerek yok!)
             addToCart(code);
         }
 
-        // --- SATIŞI BİTİR ---
+        // --- DİĞER FONKSİYONLAR ---
+        function copyMySales() {
+            if(cart.length === 0) return alert("Liste boş!");
+            let text = `📅 SATIŞ LİSTESİ\n👤 ${currentUser}\n------------------\n`;
+            let total = 0;
+            cart.forEach(item => { text += `${item.name} | ${item.price} ₺\n`; total += parseFloat(item.price); });
+            text += `------------------\nTOPLAM: ${total.toFixed(2)} ₺`;
+            navigator.clipboard.writeText(text).then(() => alert("Kopyalandı!"));
+        }
+
         async function completeSale() {
             const btn = document.getElementById('finish-btn');
-            btn.innerHTML = 'KAYDEDİLİYOR...'; btn.disabled = true;
-
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; btn.disabled = true;
             try {
                 let archiveData = []; let archiveSha = null;
                 try {
@@ -342,14 +357,11 @@
 
                 await saveToGithub(CONFIG.FILE_STOK, productDB, shaStok, "Stok Dusumu");
                 await saveToGithub(CONFIG.FILE_MUHASEBE, archiveData, archiveSha, "Satis Kaydi");
-
                 cart = []; renderCart(); loadStockData();
                 btn.innerHTML = 'SATIŞI TAMAMLA'; showStatus("Satış Tamamlandı!", false);
-
             } catch(e) { alert("Hata: " + e); btn.disabled = false; btn.innerText = "TEKRAR DENE"; }
         }
 
-        // --- MUHASEBE VE GÜN SONU ---
         async function openAccounting() {
             document.getElementById('accounting-modal').classList.remove('hidden');
             const tb = document.getElementById('accounting-body'); tb.innerHTML = '<tr><td colspan="4" class="p-4 text-center">Yükleniyor...</td></tr>';
@@ -357,7 +369,6 @@
                 const res = await fetch(`https://api.github.com/repos/${CONFIG.USER}/${CONFIG.REPO}/contents/${CONFIG.FILE_MUHASEBE}`, { headers: {'Authorization':`token ${CONFIG.TOKEN}`} });
                 const d = await res.json();
                 const sales = JSON.parse(decodeURIComponent(escape(window.atob(d.content))));
-                
                 tb.innerHTML = "";
                 sales.reverse().forEach(s => {
                     tb.innerHTML += `<tr class="border-b border-slate-700 hover:bg-slate-700"><td class="py-3 text-xs text-slate-400">${s.fullDate ? s.fullDate.split(' ')[1] : s.date}</td><td class="font-bold">${s.staff}</td><td>${s.name}</td><td class="text-right text-emerald-400 font-bold">${parseFloat(s.price).toFixed(2)}</td></tr>`;
@@ -366,20 +377,12 @@
         }
 
         async function resetDailyData() {
-            if(!confirm("⚠️ DİKKAT!\n\nTüm satış geçmişi silinecek ve kasa sıfırlanacak.\nMuhasebe kaydını aldın mı?\n\nOnaylıyor musun?")) return;
-
-            showStatus("Sıfırlanıyor...", true);
-            
-            // Dosyanın SHA'sını bulmak için tekrar çek
+            if(!confirm("⚠️ GÜN SONU İŞLEMİ\nTüm satış verileri silinecek. Onaylıyor musun?")) return;
             try {
                 const res = await fetch(`https://api.github.com/repos/${CONFIG.USER}/${CONFIG.REPO}/contents/${CONFIG.FILE_MUHASEBE}`, { headers: {'Authorization':`token ${CONFIG.TOKEN}`} });
                 const d = await res.json();
-                
-                // Boş dizi göndererek sıfırla
                 await saveToGithub(CONFIG.FILE_MUHASEBE, [], d.sha, "GUN SONU SIFIRLAMA");
-                
-                alert("Kasa sıfırlandı. Yeni güne hazır.");
-                closeAccounting();
+                alert("Kasa sıfırlandı."); closeAccounting();
             } catch(e) { alert("Sıfırlama hatası: " + e); }
         }
 
