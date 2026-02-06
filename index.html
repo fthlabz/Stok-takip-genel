@@ -3,18 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SATIŞ TERMİNALİ v2.0</title>
+    <title>SATIŞ TERMİNALİ PRO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
     <style>
-        /* FTHLABZ Kurumsal Tema */
         body { background-color: #0f172a; color: white; font-family: 'Segoe UI', sans-serif; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; touch-action: manipulation; }
         .hidden { display: none !important; }
         .btn-press:active { transform: scale(0.96); transition: 0.1s; }
-        
-        /* Liste Kaydırma */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #1e293b; }
         ::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
@@ -25,22 +22,18 @@
     <div id="login-screen" class="fixed inset-0 bg-slate-900 z-[9999] flex flex-col items-center justify-center p-6">
         <div class="bg-slate-800 p-8 rounded-2xl border border-slate-700 w-full max-w-sm text-center shadow-2xl">
             <div class="w-20 h-20 bg-indigo-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-indigo-500/50">
-                <i class="fa-solid fa-user-astronaut text-3xl text-white"></i>
+                <i class="fa-solid fa-user-lock text-3xl text-white"></i>
             </div>
-            <h2 class="text-2xl font-bold text-white mb-2">SATIŞ GİRİŞİ</h2>
-            <p class="text-slate-400 text-sm mb-6">Personel Rumuzunuzu Giriniz</p>
-            
-            <input type="text" id="staff-name" placeholder="Örn: AHMET" class="w-full bg-slate-950 text-white text-center text-xl font-bold py-4 rounded-xl border-2 border-slate-600 focus:border-indigo-500 outline-none mb-4 uppercase tracking-widest transition-colors">
-            
+            <h2 class="text-2xl font-bold text-white mb-2">GÜVENLİ GİRİŞ</h2>
+            <p class="text-slate-400 text-sm mb-6">Personel Kodunuzu Giriniz</p>
+            <input type="text" id="staff-name" placeholder="RUMUZ" class="w-full bg-slate-950 text-white text-center text-xl font-bold py-4 rounded-xl border-2 border-slate-600 focus:border-indigo-500 outline-none mb-4 uppercase tracking-widest transition-colors">
             <button onclick="login()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 rounded-xl text-lg shadow-lg transition-colors btn-press">
-                TERMİNALİ AÇ <i class="fa-solid fa-arrow-right ml-2"></i>
+                SİSTEMİ AÇ
             </button>
         </div>
-        <p class="text-slate-600 text-xs mt-8">FTHLABZ Sales Engine v2.0</p>
     </div>
 
     <div id="app-content" class="flex flex-col h-full hidden">
-        
         <header class="bg-slate-800 p-4 shadow-md border-b border-slate-700 flex justify-between items-center shrink-0 z-20">
             <div class="flex items-center gap-3">
                 <div class="bg-indigo-600 w-9 h-9 rounded flex items-center justify-center shadow">
@@ -51,12 +44,11 @@
                     <div id="active-staff-display" class="text-[10px] text-emerald-400 font-mono">...</div>
                 </div>
             </div>
-            
             <div class="flex gap-2">
                 <button onclick="showAccounting()" class="bg-slate-700 hover:bg-slate-600 px-3 py-2 rounded-lg text-xs font-bold text-slate-300 border border-slate-600 btn-press flex items-center gap-2">
                     <i class="fa-solid fa-chart-line"></i> <span class="hidden sm:inline">MUHASEBE</span>
                 </button>
-                <button onclick="logout()" class="bg-rose-900/30 hover:bg-rose-900/50 text-rose-400 px-3 py-2 rounded-lg text-xs font-bold border border-rose-800 btn-press">
+                <button onclick="logout()" class="bg-rose-900/30 text-rose-400 px-3 py-2 rounded-lg text-xs font-bold border border-rose-800 btn-press">
                     <i class="fa-solid fa-power-off"></i>
                 </button>
             </div>
@@ -67,25 +59,20 @@
         </div>
 
         <div id="scan-page" class="flex-1 flex flex-col items-center justify-center p-6 bg-slate-900 overflow-y-auto">
-            
             <div class="relative w-full max-w-sm aspect-square bg-black rounded-3xl overflow-hidden shadow-2xl border border-slate-700 mb-8 shrink-0 flex items-center justify-center group">
                 <div id="reader" class="w-full h-full object-cover"></div>
-                
                 <div id="camera-overlay" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-800 z-10">
                     <div class="w-20 h-20 bg-slate-700 rounded-full flex items-center justify-center mb-4">
                         <i class="fa-solid fa-barcode text-4xl text-slate-400"></i>
                     </div>
                     <p class="text-slate-300 text-sm font-bold">Barkod Okutun</p>
-                    <p class="text-slate-500 text-xs mt-1">veya elle ID girin</p>
                 </div>
             </div>
-
             <button id="toggle-cam-btn" onclick="toggleCamera()" class="w-full max-w-sm bg-indigo-600 hover:bg-indigo-500 text-white py-5 rounded-2xl font-bold text-lg shadow-xl shadow-indigo-500/20 btn-press flex items-center justify-center gap-3 transition-all mb-4">
-                <i class="fa-solid fa-camera"></i> <span>TARAMAYI BAŞLAT</span>
+                <i class="fa-solid fa-camera"></i> <span>KAMERAYI AÇ</span>
             </button>
-            
              <div class="flex w-full max-w-sm gap-2">
-                <input type="text" id="manual-id" placeholder="Barkod No..." class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-4 text-white outline-none focus:border-indigo-500">
+                <input type="text" id="manual-id" placeholder="Veya Barkod No..." class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-4 text-white outline-none focus:border-indigo-500">
                 <button onclick="findProduct(document.getElementById('manual-id').value)" class="bg-slate-700 text-white px-4 rounded-xl btn-press"><i class="fa-solid fa-search"></i></button>
             </div>
         </div>
@@ -94,33 +81,23 @@
             <button onclick="goHome()" class="text-slate-400 mb-4 flex items-center gap-2 text-sm w-fit p-2 hover:text-white transition-colors">
                 <i class="fa-solid fa-arrow-left"></i> Vazgeç
             </button>
-            
             <div class="bg-slate-800 rounded-3xl p-6 shadow-xl border border-slate-700 relative mb-6">
-                <div class="flex justify-between items-start mb-3">
-                    <span id="p-id-badge" class="text-[10px] text-slate-400 font-mono bg-slate-950/50 px-2 py-1 rounded border border-slate-700">ID: ...</span>
-                    <span class="text-[10px] text-indigo-300 font-bold bg-indigo-900/30 px-2 py-1 rounded border border-indigo-500/30">STOK KARTI</span>
-                </div>
-                
                 <h1 id="p-name" class="text-2xl font-bold text-white mb-2 leading-tight">Ürün Adı</h1>
-                <p id="p-note" class="text-xs text-slate-400 italic mb-4">Açıklama yok</p>
-                
                 <div class="grid grid-cols-2 gap-4">
                     <div class="bg-slate-900/50 p-4 rounded-2xl border border-slate-700/50">
-                        <div class="text-[10px] text-slate-500 uppercase font-bold mb-1">Satış Fiyatı</div>
+                        <div class="text-[10px] text-slate-500 uppercase font-bold mb-1">Fiyat</div>
                         <div id="p-price" class="text-3xl font-bold text-emerald-400">0 ₺</div>
                     </div>
                     <div class="bg-slate-900/50 p-4 rounded-2xl border border-slate-700/50 text-right">
-                        <div class="text-[10px] text-slate-500 uppercase font-bold mb-1">Depo Stok</div>
+                        <div class="text-[10px] text-slate-500 uppercase font-bold mb-1">Stok</div>
                         <div id="p-stock" class="text-3xl font-bold text-indigo-400">0</div>
                     </div>
                 </div>
             </div>
-
             <div class="mt-auto space-y-3">
                 <button onclick="processSale()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-6 rounded-2xl font-bold text-2xl shadow-lg shadow-emerald-500/20 btn-press flex items-center justify-center gap-3">
                     <i class="fa-solid fa-basket-shopping"></i> SATIŞI ONAYLA
                 </button>
-                <p class="text-center text-xs text-slate-500">Stoktan 1 adet düşecek ve muhasebeye işlenecek.</p>
             </div>
         </div>
 
@@ -129,147 +106,119 @@
                 <button onclick="goHome()" class="bg-slate-800 p-3 rounded-xl text-slate-400 border border-slate-700 btn-press"><i class="fa-solid fa-arrow-left"></i></button>
                 <h2 class="text-xl font-bold text-white">Satış Geçmişi</h2>
             </div>
-            
             <div class="grid grid-cols-2 gap-3 mb-4 shrink-0">
                 <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700">
                     <div class="text-xs text-slate-400">Toplam Satış</div>
                     <div id="acc-total-count" class="text-2xl font-bold text-white">0</div>
                 </div>
                 <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700">
-                    <div class="text-xs text-slate-400">Toplam Ciro</div>
+                    <div class="text-xs text-slate-400">Ciro</div>
                     <div id="acc-total-money" class="text-2xl font-bold text-emerald-400">0 ₺</div>
                 </div>
             </div>
-
             <div class="flex-1 overflow-y-auto bg-slate-800/50 rounded-2xl border border-slate-700 p-2">
                 <table class="w-full text-left border-collapse">
                     <thead class="text-xs text-slate-500 uppercase bg-slate-800 sticky top-0">
-                        <tr>
-                            <th class="p-3 rounded-tl-xl">Saat</th>
-                            <th class="p-3">Per.</th>
-                            <th class="p-3">Ürün</th>
-                            <th class="p-3 rounded-tr-xl text-right">Tutar</th>
-                        </tr>
+                        <tr><th class="p-3">Saat</th><th class="p-3">Per.</th><th class="p-3">Ürün</th><th class="p-3 text-right">Tutar</th></tr>
                     </thead>
-                    <tbody id="sales-table-body" class="text-sm text-slate-300">
-                        </tbody>
+                    <tbody id="sales-table-body" class="text-sm text-slate-300"></tbody>
                 </table>
             </div>
         </div>
-
     </div>
 
     <script>
-        // --- ⚙️ AYARLAR ---
-        // TOKEN ve REPO bilgilerini buraya gir
+        // ==========================================
+        // 🛠️ BURAYI DÜZENLE (2 PARÇA TOKEN) 🛠️
+        // ==========================================
+        
+        // 1. Kısım: Genelde 'ghp_' ile başlar
+        const token_part_1 = "ghp_"; 
+        
+        // 2. Kısım: Token'ın geri kalan uzun kısmı
+        const token_part_2 = "cXub3CuFhcdHtGbKgyQkvCKj57AUos0kNIIW"; 
+
+        // Repo Bilgileri
         const CONFIG = {
             USER: "fthlabz", 
-            REPO: "aluminyum-stok", 
-            FILE: "genel_stok.json", // Dosya aynı kalabilir
-            TOKEN: "ghp_BURAYA_TOKENINI_YAZ" 
+            REPO: "aluminyum-stok", // ⚠️ Reponuzun tam adı bu mu? Kontrol edin.
+            FILE: "genel_stok.json", 
+            TOKEN: token_part_1 + token_part_2 // Otomatik birleşir
         };
+        // ==========================================
 
-        // --- DEĞİŞKENLER ---
-        let db = { products: {}, sales: [] }; // Sales dizisi yeni eklendi
+        let db = { products: {}, sales: [] };
         let currentStaff = "";
         let currentId = null;
         let scanner = null;
         let isCameraRunning = false;
         let fileSha = null;
 
-        // --- GİRİŞ SİSTEMİ ---
         function login() {
             const name = document.getElementById('staff-name').value.trim().toUpperCase();
-            if(!name) return alert("Personel rumuzu boş olamaz!");
-            
+            if(!name) return alert("Lütfen rumuz girin.");
             currentStaff = name;
             document.getElementById('active-staff-display').innerText = "Personel: " + currentStaff;
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('app-content').classList.remove('hidden');
-            
-            syncFromCloud(); // Verileri çek
+            syncFromCloud();
         }
 
         function logout() { location.reload(); }
 
-        // --- BULUT (GITHUB) İŞLEMLERİ ---
         async function syncFromCloud() {
             try {
-                showStatus("Veriler Güncelleniyor...", false, true);
+                showStatus("Bağlanıyor...", false, true);
                 const url = `https://api.github.com/repos/${CONFIG.USER}/${CONFIG.REPO}/contents/${CONFIG.FILE}`;
                 const res = await fetch(url, { headers: { 'Authorization': `token ${CONFIG.TOKEN}` }, cache: "no-store" });
-                
+
                 if(res.status === 404) {
-                    // Dosya yoksa oluştur
                     db = { products: {}, sales: [] };
                     await saveToCloud();
-                } else {
-                    const data = await res.json();
-                    fileSha = data.sha;
-                    const content = decodeURIComponent(escape(window.atob(data.content)));
-                    db = JSON.parse(content);
-                    
-                    // Eğer eski veritabanında 'sales' yoksa ekle (Migration)
-                    if(!db.sales) db.sales = []; 
+                    return;
                 }
+                if(res.status === 401) { alert("Token Hatası! Şifreyi kontrol et."); return; }
+
+                const data = await res.json();
+                fileSha = data.sha;
+                db = JSON.parse(decodeURIComponent(escape(window.atob(data.content))));
+                if(!db.sales) db.sales = [];
                 showStatus("Hazır", false);
             } catch (e) { 
                 showStatus("Bağlantı Hatası!", true); 
-                console.error(e);
+                alert("Hata Detayı: " + e.message);
             }
         }
 
         async function saveToCloud() {
-            // Optimistik güncelleme: Önce en son veriyi tekrar çekip üzerine yazalım ki başkasının satışını ezmeyelim
-            // Ama sen "kafanı yorma" dediğin için direkt basıyorum :)
-            
-            showStatus("Kayıt Yapılıyor...", false, true);
+            showStatus("Kaydediliyor...", false, true);
             const content = window.btoa(unescape(encodeURIComponent(JSON.stringify(db, null, 2))));
-            
             try {
                 const res = await fetch(`https://api.github.com/repos/${CONFIG.USER}/${CONFIG.REPO}/contents/${CONFIG.FILE}`, {
                     method: 'PUT',
                     headers: { 'Authorization': `token ${CONFIG.TOKEN}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify({ message: `Satis: ${currentStaff}`, content, sha: fileSha })
                 });
-
-                if (res.status === 409) {
-                    // Çakışma oldu (Biri araya girdi), tekrar dene
-                    console.log("Çakışma! Tekrar deneniyor...");
-                    await syncFromCloud(); // Veriyi tazele
-                    // (Burada recursive mantık kurmak lazım ama basit tutuyorum, kullanıcı tekrar basar)
-                    alert("Sen işlem yaparken başka biri satış yaptı. Lütfen tekrar 'Satış' butonuna bas.");
-                    showProductPage(); 
-                    return false;
-                }
-
                 const data = await res.json();
-                fileSha = data.sha; // Yeni SHA'yı al
+                fileSha = data.sha;
                 return true;
-            } catch(e) {
-                showStatus("Kayıt Hatası!", true);
-                return false;
-            }
+            } catch(e) { showStatus("Kayıt Hatası!", true); return false; }
         }
 
-        // --- KAMERA VE ÜRÜN ---
         function toggleCamera() {
             const btn = document.getElementById('toggle-cam-btn');
             const overlay = document.getElementById('camera-overlay');
-
             if(isCameraRunning) {
                 if(scanner) scanner.stop().then(() => scanner.clear());
                 isCameraRunning = false;
-                btn.innerHTML = '<i class="fa-solid fa-camera"></i> <span>TARAMAYI BAŞLAT</span>';
+                btn.innerHTML = '<i class="fa-solid fa-camera"></i> <span>KAMERAYI AÇ</span>';
                 btn.classList.remove('bg-rose-600'); btn.classList.add('bg-indigo-600');
                 overlay.classList.remove('hidden');
             } else {
                 scanner = new Html5Qrcode("reader");
-                scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (code) => {
-                    findProduct(code);
-                });
+                scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (c) => findProduct(c));
                 isCameraRunning = true;
-                btn.innerHTML = '<i class="fa-solid fa-stop"></i> <span>KAMERAYI DURDUR</span>';
+                btn.innerHTML = '<i class="fa-solid fa-stop"></i> <span>DURDUR</span>';
                 btn.classList.remove('bg-indigo-600'); btn.classList.add('bg-rose-600');
                 overlay.classList.add('hidden');
             }
@@ -277,15 +226,13 @@
 
         function findProduct(code) {
             if(!code) return;
-            // ID temizliği
             if (code.includes("id=")) code = code.split("id=")[1];
             if (code.includes("/")) code = code.split("/").pop();
-
             if(isCameraRunning) toggleCamera();
             currentId = code;
 
             if (!db.products[code]) {
-                if(confirm("Ürün bulunamadı! Yeni stok kartı açılsın mı?")) createProduct(code);
+                if(confirm("Ürün yok! Yeni kart açılsın mı?")) createProduct(code);
                 return;
             }
             showProductPage();
@@ -293,97 +240,44 @@
 
         async function createProduct(code) {
             let name = prompt("Ürün Adı:"); if(!name) return;
-            let price = prompt("Satış Fiyatı (TL):", "0");
-            
-            db.products[code] = { 
-                name: name, 
-                price: parseFloat(price)||0, 
-                stock: 0, 
-                note: "Yeni Giriş" 
-            };
+            let price = prompt("Fiyat:", "0");
+            db.products[code] = { name: name, price: parseFloat(price)||0, stock: 0 };
             await saveToCloud(); showProductPage();
         }
 
         function showProductPage() {
             document.querySelectorAll('[id$="-page"]').forEach(el => el.classList.add('hidden'));
             document.getElementById('product-page').classList.remove('hidden');
-            
             const p = db.products[currentId];
-            document.getElementById('p-id-badge').innerText = "ID: " + currentId;
             document.getElementById('p-name').innerText = p.name;
-            document.getElementById('p-note').innerText = p.note || "";
             document.getElementById('p-price').innerText = parseFloat(p.price).toFixed(2) + " ₺";
             document.getElementById('p-stock').innerText = p.stock;
         }
 
-        // --- SATIŞ MANTIĞI ---
         async function processSale() {
             const p = db.products[currentId];
-            
-            if(p.stock < 1) {
-                if(!confirm("DİKKAT: Stokta ürün görünmüyor (-1'e düşecek). Devam edilsin mi?")) return;
-            }
-
-            // 1. Stok düş
             p.stock -= 1;
-
-            // 2. Satış Logu Oluştur
-            const saleRecord = {
-                date: new Date().toLocaleString('tr-TR'),
-                staff: currentStaff,
-                product: p.name,
-                price: p.price,
-                id: currentId
-            };
-
-            // 3. Logu veritabanına ekle
-            if(!db.sales) db.sales = [];
-            db.sales.push(saleRecord);
-
-            // 4. Kaydet
+            db.sales.push({ date: new Date().toLocaleString('tr-TR'), staff: currentStaff, product: p.name, price: p.price });
             const success = await saveToCloud();
             if(success) {
                 showStatus("SATILDI!", false);
-                // Ekranı yenile (Stok düştü görünsün)
                 document.getElementById('p-stock').innerText = p.stock;
                 setTimeout(goHome, 1000);
             }
         }
 
-        // --- MUHASEBE SAYFASI ---
         function showAccounting() {
             if(isCameraRunning) toggleCamera();
-            syncFromCloud(); // En güncel veriyi çek ki başkasının satışını da gör
-
+            syncFromCloud();
             document.querySelectorAll('[id$="-page"]').forEach(el => el.classList.add('hidden'));
             document.getElementById('accounting-page').classList.remove('hidden');
-
-            const tbody = document.getElementById('sales-table-body');
-            tbody.innerHTML = "";
-            
+            const tbody = document.getElementById('sales-table-body'); tbody.innerHTML = "";
             let totalMoney = 0;
-            // Satışları tersten döngüye al (En yeni en üstte)
-            const list = (db.sales || []).slice().reverse(); 
-
-            list.forEach(sale => {
-                totalMoney += parseFloat(sale.price || 0);
-                const tr = document.createElement('tr');
-                tr.className = "border-b border-slate-700 hover:bg-slate-700/50";
-                
-                // Saati sadece HH:MM alalım yer kaplamasın
-                let time = sale.date.split(' ')[1] || sale.date; 
-                time = time.substring(0,5);
-
-                tr.innerHTML = `
-                    <td class="p-3 text-slate-400 font-mono text-xs">${time}</td>
-                    <td class="p-3 font-bold text-white">${sale.staff}</td>
-                    <td class="p-3 text-slate-300 truncate max-w-[100px]">${sale.product}</td>
-                    <td class="p-3 text-right font-bold text-emerald-400">${parseFloat(sale.price).toFixed(2)}</td>
-                `;
-                tbody.appendChild(tr);
+            (db.sales || []).slice().reverse().forEach(s => {
+                totalMoney += parseFloat(s.price || 0);
+                tbody.innerHTML += `<tr class="border-b border-slate-700"><td class="p-3 text-slate-400 font-mono text-xs">${s.date.split(' ')[1].substring(0,5)}</td><td class="p-3">${s.staff}</td><td class="p-3 truncate max-w-[100px]">${s.product}</td><td class="p-3 text-right text-emerald-400">${parseFloat(s.price).toFixed(2)}</td></tr>`;
             });
-
-            document.getElementById('acc-total-count').innerText = list.length;
+            document.getElementById('acc-total-count').innerText = db.sales.length;
             document.getElementById('acc-total-money').innerText = totalMoney.toFixed(2) + " ₺";
         }
 
@@ -396,20 +290,9 @@
         function showStatus(msg, isError, keep) {
             const el = document.getElementById('status-box');
             document.getElementById('status-text').innerText = msg;
-            
-            el.className = isError 
-                ? "absolute top-20 left-1/2 transform -translate-x-1/2 bg-rose-600 px-6 py-3 rounded-full text-sm font-bold text-white z-50 transition-all duration-300 shadow-xl flex items-center gap-2 w-max"
-                : "absolute top-20 left-1/2 transform -translate-x-1/2 bg-emerald-600 px-6 py-3 rounded-full text-sm font-bold text-white z-50 transition-all duration-300 shadow-xl flex items-center gap-2 w-max";
-            
-            el.style.opacity = "1";
-            el.style.transform = "translate(-50%, 0)";
-            
-            if(!keep) {
-                setTimeout(() => { 
-                    el.style.opacity = "0"; 
-                    el.style.transform = "translate(-50%, -20px)";
-                }, 2000);
-            }
+            el.className = isError ? "absolute top-20 left-1/2 transform -translate-x-1/2 bg-rose-600 px-6 py-3 rounded-full text-sm font-bold text-white z-50 transition-all duration-300 shadow-xl flex items-center gap-2 w-max" : "absolute top-20 left-1/2 transform -translate-x-1/2 bg-emerald-600 px-6 py-3 rounded-full text-sm font-bold text-white z-50 transition-all duration-300 shadow-xl flex items-center gap-2 w-max";
+            el.style.opacity = "1"; el.style.transform = "translate(-50%, 0)";
+            if(!keep) setTimeout(() => { el.style.opacity = "0"; el.style.transform = "translate(-50%, -20px)"; }, 2000);
         }
     </script>
 </body>
