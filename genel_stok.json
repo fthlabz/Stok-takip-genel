@@ -18,5 +18,10 @@
       "product": "Vestel 32 pfl 6450",
       "price": 4750
     }
-  ]
+  ],
+  "URUN-214462-29694": {
+    "name": "Rofkı",
+    "price": 5555,
+    "stock": 30
+  }
 }
