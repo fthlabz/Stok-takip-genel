@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HIZLI QR V15 - NATIVE FOTO</title>
+    <title>HIZLI QR V16 - KARE İÇİ</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
@@ -11,8 +11,32 @@
     <style>
         body { background-color: #0f172a; color: white; font-family: sans-serif; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
         .hidden { display: none !important; }
-        /* Gizli Input (Bütün işi bu yapacak) */
-        #native-camera-input { display: none; }
+
+        /* --- KARE KAMERA KUTUSU TASARIMI --- */
+        #camera-wrapper {
+            position: relative;
+            width: 300px;  /* Kare Genişliği */
+            height: 300px; /* Kare Yüksekliği */
+            margin: 0 auto; /* Ortala */
+            border-radius: 24px;
+            overflow: hidden; /* Taşanı gizle */
+            border: 4px solid #10b981; /* Yeşil Çerçeve */
+            background-color: #000;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Video elementini kutuya zorla sığdır */
+        #reader { width: 100%; height: 100%; border: none !important; }
+        #reader video { 
+            object-fit: cover !important; /* Görüntüyü kareye yay */
+            width: 100% !important; 
+            height: 100% !important; 
+            border-radius: 20px !important;
+        }
+
+        /* Kütüphanenin kendi çirkin çizgilerini gizle */
+        #reader__scan_region { display: none !important; }
+        #reader__dashboard_section_csr span { display: none !important; }
     </style>
 </head>
 <body>
@@ -21,7 +45,7 @@
         <div class="bg-slate-800 p-8 rounded-2xl border border-slate-700 w-full max-w-sm text-center">
             <h2 class="text-2xl font-bold text-white mb-6">QR POS GİRİŞ</h2>
             <input type="text" id="staff-name" placeholder="KULLANICI ADI" class="w-full bg-slate-950 text-white text-center text-xl font-bold py-4 rounded-xl border-2 border-slate-600 outline-none mb-4 uppercase">
-            <button onclick="login()" class="w-full bg-indigo-600 text-white font-bold py-4 rounded-xl text-lg">GİRİŞ YAP</button>
+            <button onclick="login()" class="w-full bg-indigo-600 text-white font-bold py-4 rounded-xl text-lg">GİRİŞ</button>
         </div>
     </div>
 
@@ -43,21 +67,31 @@
 
         <div class="flex-1 overflow-y-auto bg-slate-900 p-4" id="sales-area">
             
-            <div id="empty-state" class="flex flex-col items-center justify-center h-full text-slate-600 opacity-50">
-                <i class="fa-solid fa-camera text-6xl mb-4"></i>
-                <p>Fotoğraf Çek veya Kod Gir</p>
+            <div id="camera-section" class="hidden mb-6 flex flex-col items-center animate-fade-in">
+                <div class="text-slate-400 text-xs mb-2 font-bold tracking-widest">KODU KAREYE TUTUN</div>
+                
+                <div id="camera-wrapper">
+                    <div id="reader"></div>
+                </div>
+
+                <button onclick="stopCamera()" class="mt-4 bg-slate-800 text-slate-300 px-6 py-2 rounded-full text-sm font-bold border border-slate-700">
+                    İPTAL ET / KAPAT
+                </button>
+            </div>
+
+            <div id="empty-state" class="flex flex-col items-center justify-center h-48 text-slate-600 opacity-50">
+                <i class="fa-solid fa-qrcode text-6xl mb-4"></i>
+                <p>QR Okutun...</p>
             </div>
 
             <div id="cart-list" class="space-y-2 hidden"></div>
         </div>
 
-        <div class="bg-slate-800 p-4 rounded-t-3xl border-t border-slate-700 shrink-0 shadow-[0_-5px_25px_rgba(0,0,0,0.5)]">
+        <div class="bg-slate-800 p-4 rounded-t-3xl border-t border-slate-700 shrink-0 shadow-2xl">
             
-            <input type="file" id="native-camera-input" accept="image/*" capture="environment">
-
             <div class="flex gap-2 mb-4">
-                <button onclick="triggerNativeCam()" id="scan-btn" class="flex-1 bg-indigo-600 text-white py-5 rounded-xl text-xl font-bold shadow-lg flex items-center justify-center gap-2 active:scale-95 transition-transform hover:bg-indigo-500">
-                    <i class="fa-solid fa-camera"></i> FOTO ÇEK & TARA
+                <button onclick="startCamera()" id="cam-btn" class="flex-1 bg-indigo-600 text-white py-5 rounded-xl text-xl font-bold shadow-lg flex items-center justify-center gap-2 active:scale-95 transition-transform">
+                    <i class="fa-solid fa-camera"></i> KAMERAYI AÇ
                 </button>
                 
                 <button onclick="toggleManual()" class="bg-slate-700 text-white w-20 rounded-xl text-2xl border border-slate-600 active:scale-95">
@@ -66,7 +100,7 @@
             </div>
 
             <div id="manual-box" class="hidden flex gap-2 mb-4">
-                <input type="text" id="manual-input" placeholder="Manuel ID / Barkod..." class="flex-1 bg-slate-950 text-white px-4 rounded-xl border border-slate-600 outline-none h-12">
+                <input type="text" id="manual-input" placeholder="Manuel Kod..." class="flex-1 bg-slate-950 text-white px-4 rounded-xl border border-slate-600 outline-none h-12">
                 <button onclick="manualAdd()" class="bg-emerald-600 text-white px-4 rounded-xl font-bold">EKLE</button>
             </div>
 
@@ -85,17 +119,17 @@
 
     <div id="new-product-modal" class="fixed inset-0 bg-black/90 z-[100] hidden flex flex-col justify-center p-6 backdrop-blur-sm">
         <div class="bg-slate-800 p-6 rounded-2xl border border-slate-600 shadow-2xl">
-            <h2 class="text-xl font-bold text-white mb-4 text-center">YENİ ÜRÜN TANIMLA</h2>
+            <h2 class="text-xl font-bold text-white mb-4 text-center">YENİ ÜRÜN</h2>
             <div class="space-y-3">
-                <input type="text" id="modal-code" class="w-full bg-slate-900 text-emerald-400 p-3 rounded-xl font-mono text-center text-sm border border-slate-700" readonly>
-                <input type="text" id="modal-name" class="w-full bg-slate-950 text-white p-4 rounded-xl border border-slate-600 font-bold text-lg focus:border-indigo-500 outline-none" placeholder="Ürün Adı">
+                <input type="text" id="modal-code" class="w-full bg-slate-900 text-emerald-400 p-3 rounded-xl font-mono text-center text-sm" readonly>
+                <input type="text" id="modal-name" class="w-full bg-slate-950 text-white p-4 rounded-xl border border-slate-600 font-bold text-lg" placeholder="Ürün Adı">
                 <div class="grid grid-cols-2 gap-3">
-                    <input type="number" id="modal-price" class="w-full bg-slate-950 text-emerald-400 p-4 rounded-xl border border-slate-600 font-bold text-lg focus:border-emerald-500 outline-none" placeholder="Fiyat">
-                    <input type="number" id="modal-stock" class="w-full bg-slate-950 text-orange-400 p-4 rounded-xl border border-slate-600 font-bold text-lg focus:border-orange-500 outline-none" placeholder="Stok">
+                    <input type="number" id="modal-price" class="w-full bg-slate-950 text-emerald-400 p-4 rounded-xl border border-slate-600 font-bold text-lg" placeholder="Fiyat">
+                    <input type="number" id="modal-stock" class="w-full bg-slate-950 text-orange-400 p-4 rounded-xl border border-slate-600 font-bold text-lg" placeholder="Stok">
                 </div>
             </div>
             <button onclick="saveNewProduct()" class="w-full mt-6 bg-emerald-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-emerald-500">KAYDET</button>
-            <button onclick="closeModal()" class="w-full mt-2 py-3 text-slate-400 text-sm hover:text-white">İptal</button>
+            <button onclick="closeModal()" class="w-full mt-2 py-3 text-slate-400 text-sm">İptal</button>
         </div>
     </div>
 
@@ -112,7 +146,7 @@
 
     <script>
         // ============================================
-        // ⚠️ TOKEN BURAYA GİRİLECEK
+        // ⚠️ TOKEN
         // ============================================
         const token_part_1 = "ghp_"; 
         const token_part_2 = "cXub3CuFhcdHtGbKgyQkvCKj57AUos0kNIIW"; 
@@ -140,9 +174,6 @@
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('app-content').classList.remove('hidden');
             loadData();
-            
-            // Okuyucuyu arka planda hazırla
-            html5QrCode = new Html5Qrcode("reader-hidden");
         }
 
         async function loadData() {
@@ -156,55 +187,63 @@
                 } else if(res.status === 404) {
                     productDB = {}; initFile(CONFIG.FILE_STOK, {});
                 } else {
-                    alert("Veri bağlantı hatası!");
+                    alert("Veri çekilemedi.");
                 }
             } catch(e) { console.error(e); }
         }
 
-        // ======================================================
-        // ⭐ YENİ SİSTEM: NATIVE KAMERA (iOS/Android Uyumlu)
-        // ======================================================
+        // --- KARE EKRAN KAMERA SİSTEMİ ---
+        function startCamera() {
+            // Arayüz düzenlemeleri
+            document.getElementById('camera-section').classList.remove('hidden'); // Kareyi göster
+            document.getElementById('empty-state').classList.add('hidden');
+            document.getElementById('manual-box').classList.add('hidden');
+            document.getElementById('cam-btn').classList.add('hidden'); // Butonu gizle
 
-        // 1. Butona basılınca gizli inputu çalıştır
-        function triggerNativeCam() {
-            document.getElementById('native-camera-input').click();
+            html5QrCode = new Html5Qrcode("reader");
+
+            const config = { 
+                fps: 10, 
+                // ÖNEMLİ: qrbox'ı tam 300 yapıyorum ki bütün ekran tarasın, çizgi olmasın
+                qrbox: { width: 300, height: 300 }, 
+                aspectRatio: 1.0, 
+                disableFlip: false 
+            };
+            
+            html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess)
+            .catch(err => {
+                alert("Kamera izni verin!");
+                stopCamera();
+            });
         }
 
-        // 2. Fotoğraf çekilip onaylandığında bu fonksiyon çalışır
-        document.getElementById('native-camera-input').addEventListener('change', e => {
-            if (e.target.files.length == 0) return; // Fotoğraf çekilmediyse iptal
+        function onScanSuccess(decodedText, decodedResult) {
+            // Başarılı okumada bip sesi efekti eklenebilir
+            stopCamera(); 
+            processCode(decodedText);
+        }
 
-            const imageFile = e.target.files[0];
-            const btn = document.getElementById('scan-btn');
-            const originalText = btn.innerHTML;
+        function stopCamera() {
+            if(html5QrCode) {
+                html5QrCode.stop().then(() => {
+                    html5QrCode.clear();
+                    closeCameraUI();
+                }).catch(err => {
+                    console.log("Stop hatası", err);
+                    closeCameraUI();
+                });
+            } else {
+                closeCameraUI();
+            }
+        }
 
-            // Butonu 'İşleniyor' moduna al
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Taranıyor...';
-            btn.disabled = true;
-
-            // Dosyayı tara
-            html5QrCode.scanFile(imageFile, true)
-            .then(decodedText => {
-                // BAŞARILI
-                processCode(decodedText);
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            })
-            .catch(err => {
-                // BAŞARISIZ (QR bulunamadı)
-                alert("QR Kod okunamadı. Fotoğrafın net olduğundan emin olun.");
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            });
-            
-            // Input'u temizle ki tekrar aynı fotoyu seçebilelim
-            e.target.value = '';
-        });
-
-        // ======================================================
+        function closeCameraUI() {
+            document.getElementById('camera-section').classList.add('hidden');
+            document.getElementById('cam-btn').classList.remove('hidden');
+            if(cart.length === 0) document.getElementById('empty-state').classList.remove('hidden');
+        }
 
         function processCode(code) {
-            // URL gelirse sadece ID kısmını al
             if(code.includes("id=")) code = code.split("id=")[1];
             
             if(productDB[code]) {
@@ -214,6 +253,7 @@
             }
         }
 
+        // --- SEPET İŞLEMLERİ ---
         function addToCart(code) {
             const p = productDB[code];
             cart.push({code, name: p.name, price: p.price, date: new Date().toLocaleTimeString('tr-TR')});
@@ -230,20 +270,16 @@
                 document.getElementById('empty-state').classList.add('hidden');
                 document.getElementById('cart-list').classList.remove('hidden');
                 document.getElementById('finish-btn').disabled = false;
-            } else {
-                document.getElementById('empty-state').classList.remove('hidden');
-                document.getElementById('cart-list').classList.add('hidden');
-                document.getElementById('finish-btn').disabled = true;
             }
 
             [...cart].reverse().forEach((item, i) => {
                 total += parseFloat(item.price);
-                list.innerHTML += `<div class="bg-slate-800 p-3 rounded-xl border border-slate-700 flex justify-between items-center mb-1"><div><div class="text-[10px] text-slate-400">${item.date}</div><div class="font-bold">${item.name}</div></div><div class="text-right"><div class="text-emerald-400 font-bold">${item.price} ₺</div><button onclick="cart.splice(${cart.length-1-i},1);renderCart()" class="text-rose-500 text-xs mt-1">SİL</button></div></div>`;
+                list.innerHTML += `<div class="bg-slate-800 p-3 rounded-xl border border-slate-700 flex justify-between items-center mb-1"><div><div class="text-[10px] text-slate-400">${item.date}</div><div class="font-bold">${item.name}</div></div><div class="text-right"><div class="text-emerald-400 font-bold">${item.price} ₺</div><button onclick="cart.splice(${cart.length-1-i},1);renderCart()" class="text-rose-500 text-xs p-1">SİL</button></div></div>`;
             });
             totalEl.innerText = total.toFixed(2) + " ₺";
         }
 
-        // --- YENİ ÜRÜN İŞLEMLERİ ---
+        // --- YENİ ÜRÜN ---
         function openModal(code) {
             document.getElementById('new-product-modal').classList.remove('hidden');
             document.getElementById('modal-code').value = code;
@@ -267,6 +303,7 @@
             addToCart(code);
         }
 
+        // --- TAMAMLAMA ---
         async function completeSale() {
             const btn = document.getElementById('finish-btn');
             const oldT = btn.innerText; btn.innerText = "⏳"; btn.disabled = true;
@@ -284,6 +321,7 @@
             } catch(e) { alert("Hata:"+e); btn.innerText=oldT; btn.disabled=false; }
         }
 
+        // --- DİĞER ---
         function toggleManual() {
             const box = document.getElementById('manual-box');
             box.classList.toggle('hidden');
@@ -300,7 +338,7 @@
         }
         async function openAccounting() {
             document.getElementById('accounting-modal').classList.remove('hidden');
-            const el = document.getElementById('acc-body'); el.innerHTML = '<div class="text-center p-4">Yükleniyor...</div>';
+            const el = document.getElementById('acc-body'); el.innerHTML = "Yükleniyor...";
             try {
                 const r = await fetch(`https://api.github.com/repos/${CONFIG.USER}/${CONFIG.REPO}/contents/${CONFIG.FILE_MUHASEBE}`, {headers:{'Authorization':`token ${CONFIG.TOKEN}`}});
                 const d = await r.json();
@@ -312,7 +350,7 @@
         }
         function closeAccounting() { document.getElementById('accounting-modal').classList.add('hidden'); }
         async function resetDaily() {
-            if(!confirm("Gün sonu yapılacak. Emin misin?")) return;
+            if(!confirm("Emin misin?")) return;
             const r = await fetch(`https://api.github.com/repos/${CONFIG.USER}/${CONFIG.REPO}/contents/${CONFIG.FILE_MUHASEBE}`, {headers:{'Authorization':`token ${CONFIG.TOKEN}`}});
             const d = await r.json();
             await saveGithub(CONFIG.FILE_MUHASEBE, [], d.sha, "Reset");
@@ -333,7 +371,5 @@
             setTimeout(()=>{el.style.opacity="0"; el.style.transform="translate(-50%,-20px)"}, 2000);
         }
     </script>
-    
-    <div id="reader-hidden" style="display:none;"></div>
 </body>
 </html>
